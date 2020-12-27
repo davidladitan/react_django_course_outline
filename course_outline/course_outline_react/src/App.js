@@ -4,17 +4,28 @@ import './App.css';
 import "bulma/css/bulma.css";
 import {useState} from "react";
 
-
-
 function OutcomeList(props){
+    
   const outcomeList = props.list;
+  const deleteListItem = props.handleClickDelete;
   const listItems = outcomeList.map((item, index) =>
     <li key = {index} className = "is-medium">
-        <div className="field">
-            <div className="control">
+        <div className="columns is-multiline">
+            <div className="column is-8">
               <input className="input is-primary is-half" type="text" placeholder="learning outcome"/>
             </div>
+            <div className = "column is-2">
+            <button className="button" id= {index} onClick = {deleteListItem}>
+              <span className="icon">
+                <i className="fas fa-home"></i>
+              </span>
+              <span>delete</span>
+            </button>
+
+            </div>
         </div>
+        
+         
     </li>)
       
   return (
@@ -26,45 +37,117 @@ function OutcomeList(props){
   );
 }
 
-function GradeTableBody(props){
-  const compList = props.list;
-  const rows = compList.map((item, index) =>
-    <tr key = {'row_{index}'}>
-    <td>
-      <form>
-        <input className ="input is-small"></input>
-      </form>
-    </td>
-    <td>
-      <form>
-      <input className ="input is-small"></input>
-      </form>
-    </td>
-    <td>
-      <form>
-      <input className ="input is-small"></input>
-      </form>
-    </td>
-  </tr>)
-      
+function LearningOutcomes(props){
+
+  const blankOutcome = "";
+  
+  const [outcomes, setOutcomes] = useState([""]);
+  
+
+  const addOutcome = () =>{
+    setOutcomes([...outcomes,blankOutcome])
+  }
+
+  const deleteOutcome = () =>{
+    outcomes.pop();
+    setOutcomes([...outcomes]);
+  }
+
+  const deleteItem = (e) =>{
+    const index = e.target.id;
+    outcomes.splice(index, 1);
+    // outcomes.pop();
+    setOutcomes([...outcomes]);
+  }
+
+  
   return (
-    <tbody>
-        {rows}
-      </tbody>
-  );
+    <div className = "container mt-6">
+        <h1 className = "title is-4">2. Learning Outcomes</h1>
+        <p>At the end of this course you should be able to:</p>
+        <OutcomeList list = {outcomes} handleClickDelete = {deleteItem}/>
+        <div className="buttons">
+          <button className="button is-success" onClick = {addOutcome} >Add learning outcome</button>
+          <button className="button is-danger" onClick = {deleteOutcome}>Delete learning outcome</button>
+        </div>
+      </div>
+  )
 }
 
+
+
+
+
 function GradeTable(){
-  const blankComp = {component :" ", evaluated:" ", weight:" "};
-  const [gradeComps, setGradeComps] = useState([{...blankComp}]);
+  const blankComp = "";
+  const [gradeComps, setGradeComps] = useState([""]);
+
+  const [total, setTotal] = useState([0]);
+  const [weights, setWeights] = useState([]);
+
+const calcTotal = arr => arr.reduce((a,b) => a+b,0);
+
+
+
+const addToWeight = (e)=>{
+  const newWeight = e.target.value;
+  weights.push(newWeight);
+  // setWeights([...weights, newWeight]);
+  setWeights(weights);
+  setTotal(calcTotal([...weights]));
+  console.log(weights);
+}
 
   const addRow= () =>{
-    setGradeComps([...gradeComps,{...blankComp}])
+    setGradeComps([...gradeComps,blankComp])
   }
 
   const deleteRow = () =>{
     gradeComps.pop();
     setGradeComps([...gradeComps]);
+  }
+
+  const deleteRowItem = (e) =>{
+    const index = e.target.id;
+    gradeComps.splice(index,1);
+    // gradeComps.pop();
+    setGradeComps([...gradeComps]);
+  }
+
+  function GradeTableBody(props){
+    const compList = props.list;
+    const delRow = props.handleDelete;
+    
+    const rows = compList.map((item, index) =>
+      <tr key = {`row_{index}`}>
+      <td>
+        <form>
+          <input className ="input is-small"></input>
+        </form>
+      </td>
+      <td>
+        <form>
+        <input className ="input is-small"></input>
+        </form>
+      </td>
+      <td>
+        <form>
+        <input className ="input is-small" onChange={addToWeight} ></input>
+        </form>
+      </td>
+      <button className="button" id= {index} onClick = {delRow}>
+              <span className="icon">
+                <i className="fas fa-home"></i>
+              </span>
+              <span>delete</span>
+            </button>
+    </tr>)
+        
+    return (
+      <tbody>
+          {rows}
+        </tbody>
+    );
   }
   return (
     <div classname="mt-6">
@@ -80,10 +163,10 @@ function GradeTable(){
           <tr>
             <th></th>
             <th>Total:</th>
-            <th></th>
+            <th><p>{total}</p></th>
           </tr>
           </tfoot>
-        <GradeTableBody list = {gradeComps}/>
+        <GradeTableBody list = {gradeComps} handleDelete = {deleteRowItem}/>
       </table>
       <div className="buttons">
       <button className="button is-success" onClick = {addRow} >Add Grade Component</button>
@@ -94,19 +177,9 @@ function GradeTable(){
 }
 
 function App() {
-  const blankOutcome = "";
-  
-  const [outcomes, setOutcomes] = useState([""]);
   
 
-  const addOutcome = () =>{
-    setOutcomes([...outcomes,blankOutcome])
-  }
-
-  const deleteOutcome = () =>{
-    outcomes.pop();
-    setOutcomes([...outcomes]);
-  }
+  
 
   return (
 
@@ -170,13 +243,26 @@ function App() {
       
 
       <div classname = "container">
-        <div className = "columns is-multiline">
-          <div className = "column is-four-fifths"><input className="input is-primary m*" type="text" placeholder= "Course code"/></div>
-          
-          <div className = "column is-four-fifths"><input className="input is-primary m*" type="text" placeholder= "Course title"/></div>
-
-          <div className = "column is-four-fifths"><textarea className="textarea " placeholder="Course description"></textarea></div>
+        <div className="columns is-multiline">
+        <div className="column is-2 "><label >Course code:</label></div>
+        <div className="column is-8">
+          <input className="input" type="text" placeholder="Course code "/>
         </div>
+      </div>
+
+        <div className="columns is-multiline">
+        <div className="column is-2 "><label >Course title:</label></div>
+        <div className="column is-8">
+          <input className="input" type="text" placeholder="Course title "/>
+        </div>
+      </div>
+
+        <div className="columns is-multiline">
+        <div className="column is-2 "><label >Course Description:</label></div>
+        <div className="column is-8">
+        <textarea className="textarea " placeholder="Course description"></textarea>
+        </div>
+      </div>
 
     
       <div className="columns is-multiline">
@@ -205,15 +291,7 @@ function App() {
       </div>
 
 
-      <div className = "container mt-6">
-        <h1 className = "title is-4">2. Learning Outcomes</h1>
-        <p>At the end of this course you should be able to:</p>
-        <OutcomeList list = {outcomes}/>
-        <div className="buttons">
-          <button className="button is-success" onClick = {addOutcome} >Add learning outcome</button>
-          <button className="button is-danger" onClick = {deleteOutcome}>Delete learning outcome</button>
-        </div>
-      </div>
+      <LearningOutcomes></LearningOutcomes>
 
       <div className = "container mt-6">
       <h1 className = "title is-4">7. Final Grade Determination</h1>
@@ -236,6 +314,7 @@ function App() {
             </ol>
           </div>
         </div>
+        <button className="button is-success mt-6">Save</button>
       </div>
 
     </div>
