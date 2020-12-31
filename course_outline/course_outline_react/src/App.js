@@ -2,7 +2,7 @@ import logo from './logo.svg';
 // import schulich from '/schulich.png';
 import './App.css';
 import "bulma/css/bulma.css";
-import {useState} from "react";
+import {useReducer,useState} from "react";
 
 function OutcomeList(props){
     
@@ -79,27 +79,36 @@ function LearningOutcomes(props){
 
 
 function GradeTable(){
-  const blankComp = "";
-  const [gradeComps, setGradeComps] = useState([""]);
+  const blankComp = {component: ' ', learn_out: ' ', weight: 0};
+  const [gradeComps, setGradeComps] = useState([{...blankComp}]);
 
-  const [total, setTotal] = useState([0]);
-  const [weights, setWeights] = useState([]);
+  // const [total, setTotal] = useState(0);
+  const calcTotal = arr => arr.reduce((a,b) => a+parseInt(b.weight),0);
+  
+  const myReducer = (state, action)=>{
+    const weights = action.value;
+    return calcTotal([...weights]);
+  }
 
-const calcTotal = arr => arr.reduce((a,b) => a+b,0);
+  const [total, dispatch] = useReducer(myReducer, 0);
+
+  
 
 
 
-const addToWeight = (e)=>{
-  const newWeight = e.target.value;
-  weights.push(newWeight);
-  // setWeights([...weights, newWeight]);
-  setWeights(weights);
-  setTotal(calcTotal([...weights]));
-  console.log(weights);
-}
+
+
+// const addToWeight = (e)=>{
+//   const newWeight = e.target.value;
+//   weights.push(newWeight);
+//   // setWeights([...weights, newWeight]);
+//   setWeights(weights);
+//   setTotal(calcTotal([...weights]));
+//   console.log(weights);
+// }
 
   const addRow= () =>{
-    setGradeComps([...gradeComps,blankComp])
+    setGradeComps([...gradeComps,{...blankComp}])
   }
 
   const deleteRow = () =>{
@@ -108,34 +117,49 @@ const addToWeight = (e)=>{
   }
 
   const deleteRowItem = (e) =>{
-    const index = e.target.id;
+    const index = e.currentTarget.dataset.idx;
+    console.log("deleted index is " + index);
     gradeComps.splice(index,1);
-    // gradeComps.pop();
     setGradeComps([...gradeComps]);
+    dispatch({value: gradeComps});
+    console.log(gradeComps);
+  }
+
+  const handleCompChange = (e) =>{
+    // let name = e.target.name;
+    // let value = e.target.value;
+    // const updatedComps = {...gradeComps, [name]:[value]};
+    const updatedComps = [...gradeComps];
+    console.log(updatedComps);
+    console.log("changed index is " + e.target.dataset.idx);
+    updatedComps[e.target.dataset.idx][e.target.name] = e.target.value;
+    dispatch({value: updatedComps});
+    // setTotal(calcTotal([...gradeComps]));
+    setGradeComps([...updatedComps]);
   }
 
   function GradeTableBody(props){
     const compList = props.list;
     const delRow = props.handleDelete;
     
-    const rows = compList.map((item, index) =>
-      <tr key = {`row_{index}`}>
+    const rows = compList.map((item, idx) =>
+      <tr key = {`row_${idx}`}>
       <td>
         <form>
-          <input className ="input is-small"></input>
+          <input type = "text" data-idx = {idx} id = {`component_${idx}`} name="component" className ="input is-small" value = {gradeComps[idx].component} onChange={handleCompChange} ></input>
         </form>
       </td>
       <td>
         <form>
-        <input className ="input is-small"></input>
+        <input type = "text" data-idx = {idx} id = {`learn_out_${idx}`} name ="learn_out" className ="input is-small" value = {gradeComps[idx].learn_out} onChange={handleCompChange}></input>
         </form>
       </td>
       <td>
         <form>
-        <input className ="input is-small" onChange={addToWeight} ></input>
+        <input type = "number" data-idx = {idx} id = {`weight_${idx}`} name = "weight" className ="input is-small" value = {gradeComps[idx].weight} onChange={handleCompChange} ></input>
         </form>
       </td>
-      <button className="button" id= {index} onClick = {delRow}>
+      <button className="button" data-idx= {idx} onClick = {delRow}>
               <span className="icon">
                 <i className="fas fa-home"></i>
               </span>
