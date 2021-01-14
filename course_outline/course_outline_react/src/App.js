@@ -8,6 +8,11 @@ import CreateOutline from './CreateOutline';
 import Home from './Home';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import {useReducer,useState} from "react";
+import ReactDOM from 'react-dom'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faCheckSquare, faCoffee, faTrash, faSave, faPlus, faMinus} from '@fortawesome/free-solid-svg-icons'
+
+library.add(faCheckSquare, faCoffee, faTrash, faSave, faPlus, faMinus)
 
 
 function App() {

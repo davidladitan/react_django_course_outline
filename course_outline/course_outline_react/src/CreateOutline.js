@@ -4,6 +4,8 @@ import './App.css';
 import GradeScale from './GradeScale'
 import "bulma/css/bulma.css";
 import {useReducer,useState} from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 
 function OutcomeList(props){
     
@@ -26,10 +28,7 @@ function OutcomeList(props){
             </div>
             <div className = "column is-2">
             <button className="button" id= {index} onClick = {deleteListItem}>
-              <span className="icon">
-                <i className="fas fa-home"></i>
-              </span>
-              <span>delete</span>
+              <FontAwesomeIcon icon="trash" className = "has-text-danger"/>
             </button>
 
             </div>
@@ -83,16 +82,73 @@ function LearningOutcomes(props){
         <p>At the end of this course you should be able to:</p>
         <OutcomeList list = {outcomes} handleClickDelete = {deleteItem} setOutcomes={setOutcomes}/>
         <div className="buttons">
-          <button className="button is-success" onClick = {addOutcome} >Add learning outcome</button>
-          <button className="button is-danger" onClick = {deleteOutcome}>Delete learning outcome</button>
+          <button className="button" onClick = {addOutcome} >
+            <FontAwesomeIcon icon={['fas', 'plus']} className="has-text-success"/>
+          </button>
+          <button className="button" onClick = {deleteOutcome}>
+            <FontAwesomeIcon icon={['fas', 'minus']} className="has-text-danger"/>
+          </button>
         </div>
 
-        <button className="button" onClick={saveOutcomes}>save learning outcomes</button>
+        <button className="button" onClick={saveOutcomes}>
+          <FontAwesomeIcon icon={['fas', 'save']} className="fa-lg has-text-success"/>
+        </button>
       </div>
   )
 }
 
 
+function GradeTableBody(props){
+  const compList = props.list;
+  const delRow = props.handleDelete;
+  const updateInput = props.handleCompChange;
+  const dispatch = props.dispatch;
+  const setGradeComps = props.setGradeComps;
+  // setCompList([props.list]);
+  
+  const handleCompChange = (e) =>{
+    // let name = e.target.name;
+    // let value = e.target.value;
+    // const updatedComps = {...gradeComps, [name]:[value]};
+    const updatedComps = [...compList];
+    console.log(updatedComps);
+    console.log("changed index is " + e.target.dataset.idx);
+    updatedComps[e.target.dataset.idx][e.target.name] = e.target.value;
+    dispatch({value: updatedComps});
+    // console.log("total is " + total);
+    // setTotal(calcTotal([...gradeComps]));
+    setGradeComps([...updatedComps]);
+    // return gradeComps;
+  }
+  const rows = compList.map((item, idx) =>
+    
+    <tr key = {`row_${idx}`}>
+    <td>
+      <form>
+        <input type = "text" data-idx = {idx} id = {`component_${idx}`} name="component" className ="input" value = {compList[idx].component} onChange={handleCompChange} ></input>
+      </form>
+    </td>
+    <td>
+      <form>
+      <input type = "text" data-idx = {idx} id = {`learn_out_${idx}`} name ="learn_out" className ="input " value = {compList[idx].learn_out} onChange={handleCompChange}></input>
+      </form>
+    </td>
+    <td>
+      <form>
+      <input type = "number" data-idx = {idx} id = {`weight_${idx}`} name = "weight" className ="input " value = {compList[idx].weight} onChange={handleCompChange} ></input>
+      </form>
+    </td>
+    <button className="button" data-idx= {idx} onClick = {delRow}>
+      <FontAwesomeIcon icon={['fas', 'trash']} className=" has-text-danger"/>
+    </button>
+  </tr>)
+      
+  return (
+    <tbody>
+        {rows}
+      </tbody>
+  );
+}
 
 
 
@@ -143,61 +199,9 @@ function GradeTable(){
   //   setGradeComps([...newInputs]);
   // }
 
-  const handleCompChange = (e) =>{
-    // let name = e.target.name;
-    // let value = e.target.value;
-    // const updatedComps = {...gradeComps, [name]:[value]};
-    const updatedComps = [...gradeComps];
-    console.log(updatedComps);
-    console.log("changed index is " + e.target.dataset.idx);
-    updatedComps[e.target.dataset.idx][e.target.name] = e.target.value;
-    dispatch({value: updatedComps});
-    console.log("total is " + total);
-    // setTotal(calcTotal([...gradeComps]));
-    setGradeComps([...updatedComps]);
-    // return gradeComps;
-  }
-
-  function GradeTableBody(props){
-    const compList = props.list;
-    const delRow = props.handleDelete;
-    const updateInput = props.handleCompChange;
-    // setCompList([props.list]);
-    
-    const rows = compList.map((item, idx) =>
-      
-      <tr key = {`row_${idx}`}>
-      <td>
-        <form>
-          <input type = "text" data-idx = {idx} id = {`component_${idx}`} name="component" className ="input is-small" value = {gradeComps[idx].component} onChange={handleCompChange} ></input>
-        </form>
-      </td>
-      <td>
-        <form>
-        <input type = "text" data-idx = {idx} id = {`learn_out_${idx}`} name ="learn_out" className ="input is-small" value = {gradeComps[idx].learn_out} onChange={handleCompChange}></input>
-        </form>
-      </td>
-      <td>
-        <form>
-        <input type = "number" data-idx = {idx} id = {`weight_${idx}`} name = "weight" className ="input is-small" value = {gradeComps[idx].weight} onChange={handleCompChange} ></input>
-        </form>
-      </td>
-      <button className="button" data-idx= {idx} onClick = {delRow}>
-              <span className="icon">
-                <i className="fas fa-home"></i>
-              </span>
-              <span>delete</span>
-            </button>
-    </tr>)
-        
-    return (
-      <tbody>
-          {rows}
-        </tbody>
-    );
-  }
-
   
+
+
   return (
     <div classname="mt-6">
     <table class="table is-narrow is-fullwidth">
@@ -215,11 +219,15 @@ function GradeTable(){
             <th><p>{total}</p></th>
           </tr>
           </tfoot>
-        <GradeTableBody list = {gradeComps} handleDelete = {deleteRowItem} handleUpdate={handleCompChange}/>
+        <GradeTableBody list = {gradeComps} handleDelete = {deleteRowItem} dispatch ={dispatch} setGradeComps={setGradeComps}/>
       </table>
       <div className="buttons">
-      <button className="button is-success" onClick = {addRow} >Add Grade Component</button>
-      <button className="button is-danger" onClick = {deleteRow}>Delete Grade Component</button>
+      <button className="button" onClick = {addRow} >
+        <FontAwesomeIcon icon={['fas', 'plus']} className=" has-text-success"/>
+      </button>
+      <button className="button" onClick = {deleteRow}>
+        <FontAwesomeIcon icon={['fas', 'minus']} className=" has-text-danger"/>
+      </button>
     </div>
 
 
@@ -357,7 +365,9 @@ function CreateOutline() {
         </div>        
       </div>
 
-      <button className="button" onClick = {saveCalInfo}>save calendar information </button>
+      <button className="button" onClick = {saveCalInfo}>
+        <FontAwesomeIcon icon="save" className = "fa-lg has-text-success"/>
+      </button>
 
       </div>
 
