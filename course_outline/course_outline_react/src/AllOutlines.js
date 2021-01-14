@@ -9,6 +9,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import axios from 'axios'
+import {Link} from 'react-router-dom';
 
 const api = axios.create({
     baseURL:'http://127.0.0.1:8000/',
@@ -124,7 +125,10 @@ function StickyHeadTable(props) {
 
   return (
     <Paper className={classes.root}>
+        <Link to='/create_outline'>
         <button  >Create New Outline</button>
+        </Link>
+        {/* <button  >Create New Outline</button> */}
       <TableContainer className={classes.container}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
